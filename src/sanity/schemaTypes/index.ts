@@ -3,5 +3,5 @@ import { post } from '../lib/post'
 import { author } from '../lib/author'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [post,author],
+  types: [post, author], // Array of schema types
 }
