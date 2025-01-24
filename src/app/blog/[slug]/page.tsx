@@ -17,7 +17,7 @@ export async function generateStaticParams() {
 
 // Dynamic page for a specific blog post
 export default async function page({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+  const { slug } = await  params;
 
   const query = `*[_type=='post' && slug.current=="${slug}"]{
     title, summary, image, content,
