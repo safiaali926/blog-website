@@ -1,29 +1,18 @@
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import { PortableText } from "@portabletext/react";
 import { components } from "@/components/CustomComponent";
 import { client } from "@/sanity/lib/client";
 import { urlForImage } from "@/sanity/lib/image";
-import { notFound } from "next/navigation";
 
-export const revalidate = 60; // seconds
+// Revalidate interval
+export const revalidate = 60;
 
-// Generate static paths for dynamic routes
-export async function generateStaticParams() {
-  const query = `*[_type=='post' && defined(slug.current)]{
-    "slug":slug.current
-  }`;
-  const slugs = await client.fetch(query);
-  return slugs.map((item: { slug: string }) => ({ slug: item.slug }));
-}
-
-interface PageProps {
-  params: {
-    slug: string;
-  };
-}
-
-// Dynamic page for a specific blog post
-export default async function Page({ params }: PageProps) {
+export default async function Page({
+  params,
+}: {
+  params: { slug: string }; // Explicitly declare params structure here
+}) {
   const { slug } = params;
 
   const query = `*[_type=='post' && slug.current=="${slug}"]{
@@ -33,9 +22,8 @@ export default async function Page({ params }: PageProps) {
 
   const post = await client.fetch(query);
 
-  // Handle case where post is not found
   if (!post) {
-    notFound();
+    notFound(); // Return 404 if post is not found
   }
 
   return (
@@ -43,6 +31,7 @@ export default async function Page({ params }: PageProps) {
       <h1 className="text-xl xs:text-3xl lg:text-4xl font-bold text-center text-dark dark:text-light">
         {post.title}
       </h1>
+
       {post.image && (
         <Image
           src={urlForImage(post.image)}
@@ -52,6 +41,7 @@ export default async function Page({ params }: PageProps) {
           className="rounded"
         />
       )}
+
       <section className="text-lg leading-normal text-dark/80 dark:text-light/80 justify-center w-full text-justify">
         {post.content ? (
           <PortableText value={post.content} components={components} />
@@ -59,6 +49,7 @@ export default async function Page({ params }: PageProps) {
           <p>No content available.</p>
         )}
       </section>
+
       <section>
         <h2 className="text-xl xs:text-2xl md:text-3xl font-bold uppercase text-[#9c1313]">
           Summary
@@ -67,6 +58,7 @@ export default async function Page({ params }: PageProps) {
           {post.summary}
         </p>
       </section>
+
       <section className="px-2 sm:px-8 md:px-12 flex gap-2 xs:gap-4 sm:gap-6 items-start xs:items-center justify-start">
         {post.author?.image && (
           <Image
